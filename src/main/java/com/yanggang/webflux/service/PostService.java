@@ -3,7 +3,10 @@ package com.yanggang.webflux.service;
 import com.yanggang.webflux.client.PostClient;
 import com.yanggang.webflux.dto.PostResponseDto;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Service
 public class PostService {
@@ -18,4 +21,8 @@ public class PostService {
         return postClient.getPost(id);
     }
 
+    public Flux<PostResponseDto> getMultiplePostContents(List<Long> ids) {
+        return Flux.fromIterable(ids)
+                .flatMap(this::getPostContent);
+    }
 }
