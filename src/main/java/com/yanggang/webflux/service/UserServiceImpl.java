@@ -41,9 +41,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<?> update(Long id, String name, String email) {
+    public Mono<User> update(Long id, String name, String email) {
         return userRepository.findById(id)
-                .map(user -> {
+                .flatMap(user -> {
                     user.setName(name);
                     user.setEmail(email);
                     return userRepository.save(user);

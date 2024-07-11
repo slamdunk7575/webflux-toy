@@ -9,5 +9,5 @@ public interface UserService {
     Flux<User> findAll();
     Mono<User> findById(Long id);
     Mono<Integer> deleteById(Long id);
-    Mono<?> update(Long id, String name, String email);
+    Mono<User> update(Long id, String name, String email);
 }
