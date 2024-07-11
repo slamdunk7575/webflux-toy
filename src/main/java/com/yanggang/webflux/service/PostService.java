@@ -5,6 +5,7 @@ import com.yanggang.webflux.dto.PostResponseDto;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 
@@ -18,11 +19,25 @@ public class PostService {
     }
 
     public Mono<PostResponseDto> getPostContent(Long id) {
-        return postClient.getPost(id);
+        return postClient.getPost(id)
+                .onErrorResume(error -> Mono.just(PostResponseDto.builder()
+                        .id(id)
+                        .content("Fallback data %d".formatted(id))
+                        .build()));
     }
 
     public Flux<PostResponseDto> getMultiplePostContents(List<Long> ids) {
         return Flux.fromIterable(ids)
-                .flatMap(this::getPostContent);
+                .flatMap(this::getPostContent)
+                .log();
+    }
+
+    public Flux<PostResponseDto> getParallelMultiplePostContents(List<Long> ids) {
+        return Flux.fromIterable(ids)
+                .parallel()
+                .runOn(Schedulers.parallel())
+                .flatMap(this::getPostContent)
+                .log()
+                .sequential();
     }
 }
