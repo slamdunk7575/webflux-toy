@@ -1,6 +1,6 @@
 package com.yanggang.webflux.client;
 
-import com.yanggang.webflux.dto.PostResponseDto;
+import com.yanggang.webflux.dto.ExternalPostResponseDto;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -17,7 +17,7 @@ public class PostClient {
     }
 
     // 외부 서버 요청
-    public Mono<PostResponseDto> getPost(Long id) {
+    public Mono<ExternalPostResponseDto> getPost(Long id) {
         String uriString = UriComponentsBuilder.fromHttpUrl(url)
                 .path("/posts/%d".formatted(id))
                 .buildAndExpand()
@@ -26,7 +26,7 @@ public class PostClient {
         return webClient.get()
                 .uri(uriString)
                 .retrieve()
-                .bodyToMono(PostResponseDto.class);
+                .bodyToMono(ExternalPostResponseDto.class);
     }
 
 
