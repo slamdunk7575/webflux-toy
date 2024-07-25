@@ -1,18 +1,15 @@
 package com.yanggang.webflux.controller;
 
+import com.yanggang.webflux.dto.PostCreateRequestDto;
 import com.yanggang.webflux.dto.PostResponseDto;
 import com.yanggang.webflux.service.PostService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
 @RestController
+@RequestMapping("/v2/posts")
 public class PostController {
 
     private final PostService postService;
@@ -21,17 +18,27 @@ public class PostController {
         this.postService = postService;
     }
 
-    @GetMapping("/posts/{id}")
-    public Mono<ResponseEntity<PostResponseDto>> getPostContent(@PathVariable Long id) {
-        return postService.getPostContent(id).map(ResponseEntity::ok)
-                .switchIfEmpty(Mono.just(ResponseEntity.internalServerError().build()));
+    @PostMapping
+    public Mono<PostResponseDto> create(@RequestBody PostCreateRequestDto request) {
+        return postService.create(request).map(PostResponseDto::toDto);
     }
 
-    @GetMapping("/posts/search")
-    public Flux<PostResponseDto> getMultiplePostContents(
-            @RequestParam(name = "ids") List<Long> ids
-    ) {
-        // return postService.getMultiplePostContents(ids);
-        return postService.getParallelMultiplePostContents(ids);
+    @GetMapping
+    public Flux<PostResponseDto> findAllPosts() {
+        return postService.findAll()
+                .map(PostResponseDto::toDto);
+    }
+
+    @GetMapping("/{id}")
+    public Mono<ResponseEntity<PostResponseDto>> findPost(@PathVariable Long id) {
+        return postService.findById(id)
+                .map(post -> ResponseEntity.ok().body(PostResponseDto.toDto(post)))
+                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
+    }
+
+    @DeleteMapping("/{id}")
+    public Mono<ResponseEntity<?>> deletePost(@PathVariable Long id) {
+        return postService.deleteById(id)
+                .then(Mono.just(ResponseEntity.noContent().build()));
     }
 }
