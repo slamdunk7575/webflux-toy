@@ -25,10 +25,10 @@ public class R2dbcConfig implements ApplicationListener<ApplicationReadyEvent> {
         databaseClient.sql("SELECT 1").fetch().one()
                 .subscribe(
                         success -> {
-                            log.info("Initialize R2DBC database connection");
+                            log.info("[Initialize] R2DBC database connection");
                         },
                         error -> {
-                            log.info("Failed to initialize R2DBC database connection");
+                            log.info("[Failed] to initialize R2DBC database connection");
                         }
                 );
     }
